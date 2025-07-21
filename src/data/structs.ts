@@ -8,7 +8,7 @@ export enum Connection {
 
 export enum Entity {
   Device,
-  Port
+  Port,
 }
 
 export enum Device {
@@ -27,31 +27,30 @@ export enum Device {
 }
 
 export interface Node {
-  id: string,
-  label: string,
-  ip: string,
-  type: Device,
-  ports: Port[],
+  id: string;
+  label: string;
+  ip: string;
+  type: Device;
+  ports: Port[];
 }
 
 export interface Port {
-  id: string,
-  port_num: string,
-  label: string,
-  type: Connection,
+  id: string;
+  port_num: string;
+  label: string;
+  type: Connection;
 }
 
 export interface NodeData {
-  data: Node[]
+  data: Node[];
 }
 
-
 export interface Edge {
-  node: [string, string],
-  port: [string, string],
-  type: Connection,
+  node: [string, string];
+  port: [string, string];
+  type: Connection;
 }
 
 export interface EdgeData {
-  data: Edge[]
+  data: Edge[];
 }

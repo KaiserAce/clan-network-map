@@ -57,17 +57,20 @@ body {
 /* Target the path and polygon inside an edge group */
 .graph-edge path,
 .graph-edge polygon {
-  transition: stroke 0.3s ease-in-out, stroke-width 0.3s ease-in-out, fill 0.3s ease-in-out;
-  stroke: #00573F; /* Default edge color */
-  fill: #00573F; /* Default arrowhead color */
+  transition:
+    stroke 0.3s ease-in-out,
+    stroke-width 0.3s ease-in-out,
+    fill 0.3s ease-in-out;
+  stroke: #00573f; /* Default edge color */
+  fill: #00573f; /* Default arrowhead color */
 }
 
 /* Hover state for the entire edge group */
 .graph-edge:hover path,
 .graph-edge:hover polygon {
-  stroke: #FFB81C; /* Highlight color on hover */
+  stroke: #ffb81c; /* Highlight color on hover */
   stroke-width: 4px; /* Thicker line on hover */
-  fill: #FFB81C; /* Highlight arrowhead color */
+  fill: #ffb81c; /* Highlight arrowhead color */
   cursor: pointer; /* Indicate clickability */
 }
 

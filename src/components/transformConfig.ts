@@ -10,12 +10,12 @@ export const transformConfig = {
     step: 0.05,
     smoothStep: 0.005,
     wheelDisabled: false,
-    touchPadDisabled: false
+    touchPadDisabled: false,
   },
 
   pinch: {
     step: 0.05,
-    disabled: false
+    disabled: false,
   },
 
   panning: {
@@ -26,20 +26,20 @@ export const transformConfig = {
     allowLeftClickPan: true,
     allowRightClickPan: true,
     allowMiddleClickPan: true,
-    wheelPanning: true
+    wheelPanning: true,
   },
 
   doubleClick: {
     disabled: false,
     step: 0.3,
-    mode: 'zoomIn' as const
+    mode: "zoomIn" as const,
   },
 
   zoomAnimation: {
     disabled: false,
     size: 0.2,
     animationTime: 200,
-    animationType: 'easeInOutQuart' as const
+    animationType: "easeInOutQuart" as const,
   },
 
   alignmentAnimation: {
@@ -48,18 +48,18 @@ export const transformConfig = {
     sizeY: 200,
     animationTime: 200,
     velocityAlignmentTime: 400,
-    animationType: 'easeOutQuart' as const
+    animationType: "easeOutQuart" as const,
   },
 
   velocityAnimation: {
     disabled: false,
     sensitivity: 0.8,
     animationTime: 300,
-    animationType: 'easeOutQuart' as const
+    animationType: "easeOutQuart" as const,
   },
-  
+
   limitToBounds: false,
   centerZoomedOut: true,
   disablePadding: true,
-  smooth: true
+  smooth: true,
 };

@@ -1,18 +1,23 @@
-'use client'
+"use client";
 // components/ClusterTree.js
-import React, { useRef, useEffect, useState, useMemo } from 'react';
-import * as d3 from 'd3';
+import React, { useRef, useEffect, useState, useMemo } from "react";
+import * as d3 from "d3";
 import { Connection, Device, Entity } from "@/data/structs";
 
-const ClusterTree = ({ main_node, filtered_node, filtered_edge, onNodeClick }) => {
+const ClusterTree = ({
+  main_node,
+  filtered_node,
+  filtered_edge,
+  onNodeClick,
+}) => {
   const svgRef = useRef();
   const containerRef = useRef();
-  
+
   // Dynamic dimensions based on container size
   const [dimensions, setDimensions] = useState({
-    width: 1000, 
-    height: 600, 
-    margin: { top: 50, right: 100, bottom: 50, left: 100 }
+    width: 1000,
+    height: 600,
+    margin: { top: 50, right: 100, bottom: 50, left: 100 },
   });
 
   // Update dimensions when container size changes
@@ -22,16 +27,16 @@ const ClusterTree = ({ main_node, filtered_node, filtered_edge, onNodeClick }) =
         const rect = containerRef.current.getBoundingClientRect();
         const newWidth = Math.max(400, rect.width - 40); // Min width with padding
         const newHeight = Math.max(300, rect.height - 40); // Min height with padding
-        
+
         setDimensions({
           width: newWidth,
           height: newHeight,
-          margin: { 
-            top: Math.min(50, newHeight * 0.1), 
-            right: Math.min(100, newWidth * 0.1), 
-            bottom: Math.min(50, newHeight * 0.1), 
-            left: Math.min(100, newWidth * 0.1) 
-          }
+          margin: {
+            top: Math.min(50, newHeight * 0.1),
+            right: Math.min(100, newWidth * 0.1),
+            bottom: Math.min(50, newHeight * 0.1),
+            left: Math.min(100, newWidth * 0.1),
+          },
         });
       }
     };
@@ -60,7 +65,8 @@ const ClusterTree = ({ main_node, filtered_node, filtered_edge, onNodeClick }) =
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    const g = svg.append("g")
+    const g = svg
+      .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Create the hierarchical data structure
@@ -91,74 +97,108 @@ const ClusterTree = ({ main_node, filtered_node, filtered_edge, onNodeClick }) =
 
       for (const edge of filtered_edge) {
         const node_index = edge.node.indexOf(main_node.id);
-        const partner_node = filtered_node.filter(d => d.id === edge.node[1 - node_index]);
-        const partner_port = partner_node[0]?.ports.filter(d => d.id === edge.port[1 - node_index]);
+        const partner_node = filtered_node.filter(
+          (d) => d.id === edge.node[1 - node_index],
+        );
+        const partner_port = partner_node[0]?.ports.filter(
+          (d) => d.id === edge.port[1 - node_index],
+        );
 
         if (edge.port[node_index] === port.id) {
           node.children.push({
             id: partner_node[0].id,
             ip: partner_node[0].ip,
             name: `${partner_node[0].label}`,
-            children:[],
+            children: [],
             node: Entity.Device,
             type: partner_node[0].type,
-            port: partner_port[0]?.port_num ?? 'undefined',
-            label: partner_port[0]?.label ?? 'undefined',
+            port: partner_port[0]?.port_num ?? "undefined",
+            label: partner_port[0]?.label ?? "undefined",
             connection: Connection.None,
           });
-        };
+        }
       }
 
       root_node.children.push(node);
-    };
+    }
 
     data.push(root_node);
 
     const root = d3.hierarchy(root_node);
 
     // Create the cluster layout
-    const treeLayout = d3.tree()
+    const treeLayout = d3
+      .tree()
       .size([innerHeight, innerWidth - 160])
       .nodeSize([50, 300])
       .separation((a, b) => {
         return a.parent === b.parent ? 2 : 3;
       });
-    
+
     // Compute the layout
     treeLayout(root);
 
     // Draw the links (paths)
     g.selectAll(".link")
       .data(root.links())
-      .enter().append("path")
+      .enter()
+      .append("path")
       .attr("class", "link")
-      .attr("d", d3.linkHorizontal()
-        .x(d => d.y)
-        .y(d => d.x))
+      .attr(
+        "d",
+        d3
+          .linkHorizontal()
+          .x((d) => d.y)
+          .y((d) => d.x),
+      )
       .attr("fill", "none")
-      .attr("stroke", d => {
-        if (d.source.data.node === Entity.Port && d.source.data.type === Connection.Ethernet) return '#F58315';
-        if (d.source.data.node === Entity.Port && d.source.data.type === Connection.FiberOptic) return '#1594F5';
-        if (d.source.data.node === Entity.Port && d.source.data.type === Connection.Wireless) return '#1CE637';
-      return "#ccc";
+      .attr("stroke", (d) => {
+        if (
+          d.source.data.node === Entity.Port &&
+          d.source.data.type === Connection.Ethernet
+        )
+          return "#F58315";
+        if (
+          d.source.data.node === Entity.Port &&
+          d.source.data.type === Connection.FiberOptic
+        )
+          return "#1594F5";
+        if (
+          d.source.data.node === Entity.Port &&
+          d.source.data.type === Connection.Wireless
+        )
+          return "#1CE637";
+        return "#ccc";
       })
       .attr("stroke-width", 3)
-        .attr("stroke-dasharray", d => {
-        if (d.source.data.node === Entity.Port && d.source.data.type === Connection.Wireless) return '3, 5';
-          return null;
-        });
+      .attr("stroke-dasharray", (d) => {
+        if (
+          d.source.data.node === Entity.Port &&
+          d.source.data.type === Connection.Wireless
+        )
+          return "3, 5";
+        return null;
+      });
 
     // Draw the nodes
-    const node = g.selectAll(".node")
+    const node = g
+      .selectAll(".node")
       .data(root.descendants())
-      .enter().append("g")
-      .attr("class", d => "node" + (d.children ? " node--internal" : " node--leaf"))
-      .attr("transform", d => `translate(${d.y},${d.x})`);
+      .enter()
+      .append("g")
+      .attr(
+        "class",
+        (d) => "node" + (d.children ? " node--internal" : " node--leaf"),
+      )
+      .attr("transform", (d) => `translate(${d.y},${d.x})`);
 
     // Use click handler instead of <a> tags for navigation
-    const nodeGroup = node.append("g")
-      .style("cursor", d => d.data.node === Entity.Device ? "pointer" : "default")
-      .on("click", function(event, d) {
+    const nodeGroup = node
+      .append("g")
+      .style("cursor", (d) =>
+        d.data.node === Entity.Device ? "pointer" : "default",
+      )
+      .on("click", function (event, d) {
         // Only navigate for Device nodes, not Port nodes
         if (d.data.node === Entity.Device && onNodeClick) {
           event.preventDefault();
@@ -168,27 +208,53 @@ const ClusterTree = ({ main_node, filtered_node, filtered_edge, onNodeClick }) =
         }
       });
 
-    nodeGroup.append("image")
-      .attr("xlink:href", d => {
-        if (d.data.node === Entity.Device && d.data.type === Device.ISP) return "/cloud.svg";
-        if (d.data.node === Entity.Device && d.data.type === Device.MainRouter) return "/router.svg";
-        if (d.data.node === Entity.Device && d.data.type === Device.WirelessRouter) return "/wireless-router.svg";
-        if (d.data.node === Entity.Device && d.data.type === Device.Firewall) return "/firewall.svg";
-        if (d.data.node === Entity.Device && d.data.type === Device.CoreSwitch) return "/programmable-switch.svg";
-        if (d.data.node === Entity.Device && d.data.type === Device.DistributionSwitch) return "/workgroup-switch-blue.svg";
-        if (d.data.node === Entity.Device && d.data.type === Device.AccessSwitch) return "/workgroup-switch.svg";
-        if (d.data.node === Entity.Device && d.data.type === Device.Server) return "/server.svg";
-        if (d.data.node === Entity.Port && d.data.type === Connection.Ethernet) return "/ethernet.svg";
-        if (d.data.node === Entity.Port && d.data.type === Connection.FiberOptic) return "/fiber.svg";
-        if (d.data.node === Entity.Port && d.data.type === Connection.Wireless) return "/wireless.svg";
-        return "/no.svg"
+    nodeGroup
+      .append("image")
+      .attr("xlink:href", (d) => {
+        if (d.data.node === Entity.Device && d.data.type === Device.ISP)
+          return "/cloud.svg";
+        if (d.data.node === Entity.Device && d.data.type === Device.MainRouter)
+          return "/router.svg";
+        if (
+          d.data.node === Entity.Device &&
+          d.data.type === Device.WirelessRouter
+        )
+          return "/wireless-router.svg";
+        if (d.data.node === Entity.Device && d.data.type === Device.Firewall)
+          return "/firewall.svg";
+        if (d.data.node === Entity.Device && d.data.type === Device.CoreSwitch)
+          return "/programmable-switch.svg";
+        if (
+          d.data.node === Entity.Device &&
+          d.data.type === Device.DistributionSwitch
+        )
+          return "/workgroup-switch-blue.svg";
+        if (
+          d.data.node === Entity.Device &&
+          d.data.type === Device.AccessSwitch
+        )
+          return "/workgroup-switch.svg";
+        if (d.data.node === Entity.Device && d.data.type === Device.Server)
+          return "/server.svg";
+        if (d.data.node === Entity.Port && d.data.type === Connection.Ethernet)
+          return "/ethernet.svg";
+        if (
+          d.data.node === Entity.Port &&
+          d.data.type === Connection.FiberOptic
+        )
+          return "/fiber.svg";
+        if (d.data.node === Entity.Port && d.data.type === Connection.Wireless)
+          return "/wireless.svg";
+        return "/no.svg";
       })
       .attr("x", -25)
       .attr("y", -25)
-      .attr("width", 50) 
-      .attr("height", 50); 
+      .attr("width", 50)
+      .attr("height", 50);
 
-    const tooltip = d3.select("body").append("div")     //differentiate connection type when hovering on node/s
+    const tooltip = d3
+      .select("body")
+      .append("div") //differentiate connection type when hovering on node/s
       .attr("class", "tooltip")
       .style("position", "absolute")
       .style("opacity", 0)
@@ -200,74 +266,80 @@ const ClusterTree = ({ main_node, filtered_node, filtered_edge, onNodeClick }) =
 
     // Add hover effects for Device nodes
     nodeGroup
-      .filter(d => d.data.node === Entity.Device)
-      .on("mouseover", function(event, d) {
-        d3.select(this).select("image")
-          .attr("opacity", 0.7);
+      .filter((d) => d.data.node === Entity.Device)
+      .on("mouseover", function (event, d) {
+        d3.select(this).select("image").attr("opacity", 0.7);
 
-      tooltip.transition()                          //for IP address appearance                      
-        .duration(200)
-        .style("opacity", .9);
-        
-      tooltip.html(`IP: ${d.data.ip} <br /> ID: ${d.data.id}`)
-        .style("left", (event.pageX + 10) + "px")   //for IP address appearance
-        .style("top", (event.pageY - 15) + "px");
+        tooltip
+          .transition() //for IP address appearance
+          .duration(200)
+          .style("opacity", 0.9);
+
+        tooltip
+          .html(`IP: ${d.data.ip} <br /> ID: ${d.data.id}`)
+          .style("left", event.pageX + 10 + "px") //for IP address appearance
+          .style("top", event.pageY - 15 + "px");
       })
-      .on("mouseout", function(event, d) {
-        d3.select(this).select("image")
-          .attr("opacity", 1);
+      .on("mouseout", function (event, d) {
+        d3.select(this).select("image").attr("opacity", 1);
 
-      tooltip.transition()                           //for IP address appearance
-        .duration(500)
-        .style("opacity", 0);
+        tooltip
+          .transition() //for IP address appearance
+          .duration(500)
+          .style("opacity", 0);
       });
 
     // Add text labels for nodes
-    nodeGroup.append("text")
+    nodeGroup
+      .append("text")
       .attr("x", 0)
       .attr("y", 45)
       .attr("text-anchor", "middle")
       .attr("font-family", "sans-serif")
       .attr("font-size", 12)
-      .each(function(d) {
+      .each(function (d) {
         const textElement = d3.select(this);
         textElement.selectAll("*").remove(); // Clear existing tspans on re-render
 
         if (d.parent && d.data.node === Entity.Device) {
-          textElement.append("tspan")
+          textElement
+            .append("tspan")
             .attr("x", 0)
             .attr("dy", "-0.7em") // Move up relative to the parent <text>'s 'y' (45)
             .text(`${d.data.port} | ${d.data.label}`);
 
-          textElement.append("tspan")
+          textElement
+            .append("tspan")
             .attr("x", 0)
             .attr("dy", "1.4em") // Move down from the previous tspan's position
             .text(d.data.name);
         } else {
-          textElement.append("tspan")
+          textElement
+            .append("tspan")
             .attr("x", 0)
             .attr("dy", "0.31em") // Standard baseline alignment relative to parent 'y'
             .text(`${d.data.port} | ${d.data.name}`);
         }
       });
 
-    const zoomBehavior = d3.zoom()
-      .scaleExtent([0.1, 8]) 
+    const zoomBehavior = d3
+      .zoom()
+      .scaleExtent([0.1, 8])
       .on("zoom", (event) => {
         g.attr("transform", event.transform);
       });
 
     svg.call(zoomBehavior);
 
-    // Initially set the view to full view of the graph 
+    // Initially set the view to full view of the graph
     const bbox = g.node().getBBox();
-    
+
     const svgWidth = parseInt(svg.attr("width"));
     const svgHeight = parseInt(svg.attr("height"));
     const padding = 40;
     const scale = Math.min(
       (svgWidth - 2 * padding) / bbox.width,
-      (svgHeight - 2 * padding) / bbox.height
+      (svgHeight - 2 * padding) / bbox.height,
     );
 
     const translateX = (svgWidth - bbox.width * scale) / 2 - bbox.x * scale;
@@ -275,22 +347,25 @@ const ClusterTree = ({ main_node, filtered_node, filtered_edge, onNodeClick }) =
 
     svg.call(
       zoomBehavior.transform,
-      d3.zoomIdentity.translate(translateX, translateY).scale(scale)
+      d3.zoomIdentity.translate(translateX, translateY).scale(scale),
     );
 
-  return () => {
+    return () => {
       tooltip.transition().duration(0).style("opacity", 0); // Immediately hide
       tooltip.remove(); // Remove the tooltip div from the body
     };
-
   }, [main_node, filtered_node, filtered_edge, onNodeClick, dimensions]); // Added dimensions back since it's now state
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="w-full h-full flex items-center justify-center"
     >
-      <svg ref={svgRef} width={dimensions.width} height={dimensions.height}></svg>
+      <svg
+        ref={svgRef}
+        width={dimensions.width}
+        height={dimensions.height}
+      ></svg>
     </div>
   );
 };

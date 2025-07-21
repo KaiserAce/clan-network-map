@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 const juliusSansOne = Julius_Sans_One({
   variable: "--font-julius-sans-one",
-  weight: '400',
+  weight: "400",
   subsets: ["latin"],
 });
 
