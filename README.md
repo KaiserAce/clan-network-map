@@ -1,3 +1,7 @@
+# C/LAN Network Map
+
+A web application which serves as a documentation to the physical and logical connection between network devices on campus grounds.
+
 # Installation and Setup
 
 ## Prerequisites
